@@ -1,0 +1,85 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+
+    - name: Configure CMake
+      uses: lukka/run-cmake@v10
+      with:
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        configurePreset: 'win-x64-debug-vcpkg'
+
+    - name: Build
+      run: cmake --build build/win-x64-debug-vcpkg --config Debug
+
+    - name: Test
+      working-directory: build/win-x64-debug-vcpkg
+      run: ctest -C Debug --output-on-failure
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+
+    - name: Install Ninja
+      run: brew install ninja
+
+    - name: Configure CMake
+      uses: lukka/run-cmake@v10
+      with:
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        configurePreset: 'macos-arm64-debug'
+
+    - name: Build
+      run: cmake --build build/macos-arm64-debug --config Debug
+
+    - name: Test
+      working-directory: build/macos-arm64-debug
+      run: ctest -C Debug --output-on-failure
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build libgl1-mesa-dev libglu1-mesa-dev
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+
+    - name: Configure CMake
+      uses: lukka/run-cmake@v10
+      with:
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        configurePreset: 'linux-x64-debug'
+
+    - name: Build
+      run: cmake --build build/linux-x64-debug --config Debug
+
+    - name: Test
+      working-directory: build/linux-x64-debug
+      run: ctest -C Debug --output-on-failure
