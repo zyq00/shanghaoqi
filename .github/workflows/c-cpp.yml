@@ -8,6 +8,7 @@ on:
 
 env:
   VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-cache
 
 jobs:
   build-windows:
@@ -20,16 +21,33 @@ jobs:
       with:
         cmakeVersion: '3.28.0'
 
+    - name: Create vcpkg binary cache directory
+      run: mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+      shell: bash
+
     - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
+      uses: actions/checkout@v4
       with:
-        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+        repository: microsoft/vcpkg
+        ref: '2024.12.16'
+        path: ${{ env.VCPKG_ROOT }}
+
+    - name: Bootstrap vcpkg
+      run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat
+
+    - name: Cache vcpkg packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          ${{ env.VCPKG_ROOT }}/installed
+        key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}-${{ hashFiles('.github/workflows/c-cpp.yml') }}
+        restore-keys: |
+          vcpkg-windows-${{ hashFiles('vcpkg.json') }}-
+          vcpkg-windows-
 
     - name: Configure CMake
-      run: |
-        cmake --preset win-x64-debug-vcpkg
-      env:
-        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+      run: cmake --preset win-x64-debug-vcpkg
 
     - name: Build
       run: cmake --build build/win-x64-debug-vcpkg --config Debug
@@ -51,16 +69,32 @@ jobs:
     - name: Install Ninja
       run: brew install ninja
 
+    - name: Create vcpkg binary cache directory
+      run: mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+
     - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
+      uses: actions/checkout@v4
       with:
-        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+        repository: microsoft/vcpkg
+        ref: '2024.12.16'
+        path: ${{ env.VCPKG_ROOT }}
+
+    - name: Bootstrap vcpkg
+      run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
+
+    - name: Cache vcpkg packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          ${{ env.VCPKG_ROOT }}/installed
+        key: vcpkg-macos-${{ hashFiles('vcpkg.json') }}-${{ hashFiles('.github/workflows/c-cpp.yml') }}
+        restore-keys: |
+          vcpkg-macos-${{ hashFiles('vcpkg.json') }}-
+          vcpkg-macos-
 
     - name: Configure CMake
-      run: |
-        cmake --preset macos-arm64-debug
-      env:
-        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+      run: cmake --preset macos-arm64-debug
 
     - name: Build
       run: cmake --build build/macos-arm64-debug --config Debug
@@ -82,18 +116,34 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build libgl1-mesa-dev libglu1-mesa-dev
+        sudo apt-get install -y ninja-build libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxcb-cursor-dev
+
+    - name: Create vcpkg binary cache directory
+      run: mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
 
     - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
+      uses: actions/checkout@v4
       with:
-        vcpkgGitCommitId: '501db0f17ef6df184fcdbfbe0f87cde2313b6ab1'
+        repository: microsoft/vcpkg
+        ref: '2024.12.16'
+        path: ${{ env.VCPKG_ROOT }}
+
+    - name: Bootstrap vcpkg
+      run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
+
+    - name: Cache vcpkg packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          ${{ env.VCPKG_ROOT }}/installed
+        key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}-${{ hashFiles('.github/workflows/c-cpp.yml') }}
+        restore-keys: |
+          vcpkg-linux-${{ hashFiles('vcpkg.json') }}-
+          vcpkg-linux-
 
     - name: Configure CMake
-      run: |
-        cmake --preset linux-x64-debug
-      env:
-        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+      run: cmake --preset linux-x64-debug
 
     - name: Build
       run: cmake --build build/linux-x64-debug --config Debug
