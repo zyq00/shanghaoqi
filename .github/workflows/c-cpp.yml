@@ -22,8 +22,7 @@ jobs:
         cmakeVersion: '3.28.0'
 
     - name: Create vcpkg binary cache directory
-      run: mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-      shell: bash
+      run: mkdir "${{ env.VCPKG_DEFAULT_BINARY_CACHE }}"
 
     - name: Setup vcpkg
       uses: actions/checkout@v4
@@ -34,6 +33,7 @@ jobs:
 
     - name: Bootstrap vcpkg
       run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat
+      shell: cmd
 
     - name: Cache vcpkg packages
       uses: actions/cache@v4
