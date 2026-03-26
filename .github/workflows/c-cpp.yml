@@ -12,6 +12,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: '3.28.0'
+
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
       with:
@@ -22,6 +27,7 @@ jobs:
       with:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         configurePreset: 'win-x64-debug-vcpkg'
+        buildPreset: ''
 
     - name: Build
       run: cmake --build build/win-x64-debug-vcpkg --config Debug
