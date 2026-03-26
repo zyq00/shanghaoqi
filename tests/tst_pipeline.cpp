@@ -1,4 +1,5 @@
 #include <QTest>
+#include <QJsonDocument>
 #include "pipeline/pipeline.h"
 #include "pipeline/middleware.h"
 #include "pipeline/middlewares/auth_middleware.h"
