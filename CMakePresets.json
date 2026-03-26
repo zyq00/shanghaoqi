@@ -15,7 +15,7 @@
     {
       "name": "win-x64-debug",
       "displayName": "Windows x64 Debug (Local Qt)",
-      "generator": "Visual Studio 18 2026",
+      "generator": "Visual Studio 17 2022",
       "architecture": { "value": "x64", "strategy": "set" },
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -36,7 +36,7 @@
       "name": "win-x64-debug-vcpkg",
       "displayName": "Windows x64 Debug (vcpkg)",
       "inherits": "vcpkg",
-      "generator": "Visual Studio 18 2026",
+      "generator": "Visual Studio 17 2022",
       "architecture": { "value": "x64", "strategy": "set" },
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
